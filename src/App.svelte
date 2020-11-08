@@ -1,10 +1,41 @@
 <script>
-	export let name;
+	import Progress from './Progress.svelte'
+
+	let spawningZombie = false
+	let zombies = 0
+	let zombieSpawnDuration = 500
+
+	let autoZombieDuration = 1500
+	let autoZombies = false
+	let autoZombieTimer = null
+
+	function createZombie () {
+		spawningZombie = true
+		setTimeout(() => {
+			spawningZombie = false
+			zombies += 1
+		}, zombieSpawnDuration)
+	}
+
+	function runAutoZombies () {
+		if (autoZombies) {
+			createZombie()
+			autoZombieTimer = setInterval(() => createZombie(), autoZombieDuration)
+		} else {
+			clearInterval(autoZombieTimer)
+		}
+	}
+
 </script>
 
 <main>
-	<h1>Hello {name}!</h1>
-	<p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
+	<h1>Zombies</h1>
+	<button on:click={createZombie} disabled={spawningZombie}>
+		Spawn Zombie
+	</button>
+	<Progress duration={zombieSpawnDuration} run={spawningZombie}/>
+	{zombies} {zombies === 1 ? 'zombie' : 'zombies'}
+	<label><input type='checkbox' bind:checked={autoZombies} on:change={runAutoZombies}/> Auto zombies</label>
 </main>
 
 <style>
