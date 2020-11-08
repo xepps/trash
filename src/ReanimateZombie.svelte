@@ -1,9 +1,11 @@
 <script>
     import Progress from './Progress.svelte'
-    import { currentPopulation, zombies, zombieHelpers, autoZombies, defaultZombieSpawnDuration } from './store'
+    import { currentPopulation, zombies, upgrades, defaultZombieSpawnDuration } from './store'
+    let autoZombies
+    let currentSpawn
 
     let spawningZombie = false
-    $: currentZombieSpawnDuration = $autoZombies ? 2 * $defaultZombieSpawnDuration : $defaultZombieSpawnDuration
+    $: currentZombieSpawnDuration = autoZombies ? 2 * $defaultZombieSpawnDuration : $defaultZombieSpawnDuration
 
     function createZombie () {
       spawningZombie = true
@@ -20,16 +22,16 @@
     }
 
     setInterval(() => {
-      if ($autoZombies && !spawningZombie) {
+      if (autoZombies && !spawningZombie) {
         createZombie()
       }
     }, 50)
 </script>
 
 <button on:click={createZombie} disabled={spawningZombie}>
-  Construct Zombie
+  Reanimate Zombie
 </button>
 <Progress duration={currentZombieSpawnDuration} run={spawningZombie}/>
-{#if $zombieHelpers}
-  <label><input type="checkbox" bind:checked={$autoZombies} on:change={clearSpawn}/> Auto zombies</label>
+{#if $upgrades.upgrades.AUTO_ZOMBIES.purchased}
+  <label><input type="checkbox" bind:checked={autoZombies} on:change={clearSpawn}/> Auto zombies</label>
 {/if}
