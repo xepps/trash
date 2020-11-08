@@ -4,6 +4,7 @@
 
   export let duration
   export let run
+  let progress
 
   $: if (run) {
     progress.set(1)
@@ -11,7 +12,7 @@
     progress.set(0, { duration: 0 })
   }
 
-	const progress = tweened(0, {
+	$: progress = tweened(0, {
 		duration,
 		easing: linear
 	});

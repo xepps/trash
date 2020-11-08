@@ -1,41 +1,45 @@
 <script>
 	import Progress from './Progress.svelte'
 
+	const defaultZombieSpawnDuration = 500
 	let spawningZombie = false
 	let zombies = 0
-	let zombieSpawnDuration = 500
+	let currentSpawn = null
 
-	let autoZombieDuration = 1500
+	$: currentZombieSpawnDuration = autoZombies ? 2 * defaultZombieSpawnDuration : defaultZombieSpawnDuration
+
 	let autoZombies = false
-	let autoZombieTimer = null
 
 	function createZombie () {
 		spawningZombie = true
-		setTimeout(() => {
-			spawningZombie = false
+		currentSpawn = setTimeout(() => {
 			zombies += 1
-		}, zombieSpawnDuration)
+			spawningZombie = false
+		}, currentZombieSpawnDuration)
 	}
 
-	function runAutoZombies () {
-		if (autoZombies) {
-			createZombie()
-			autoZombieTimer = setInterval(() => createZombie(), autoZombieDuration)
-		} else {
-			clearInterval(autoZombieTimer)
-		}
+	function clearSpawn () {
+		spawningZombie = false
+		clearTimeout(currentSpawn)
 	}
+
+	setInterval(() => {
+		if (autoZombies && !spawningZombie) {
+			createZombie()
+		}
+	}, 50)
 
 </script>
 
 <main>
 	<h1>Zombies</h1>
+
 	<button on:click={createZombie} disabled={spawningZombie}>
 		Spawn Zombie
 	</button>
-	<Progress duration={zombieSpawnDuration} run={spawningZombie}/>
+	<Progress duration={currentZombieSpawnDuration} run={spawningZombie}/>
 	{zombies} {zombies === 1 ? 'zombie' : 'zombies'}
-	<label><input type='checkbox' bind:checked={autoZombies} on:change={runAutoZombies}/> Auto zombies</label>
+	<label><input type='checkbox' bind:checked={autoZombies} on:change={clearSpawn}/> Auto zombies</label>
 </main>
 
 <style>
