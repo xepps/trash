@@ -1,14 +1,16 @@
 <script>
-	import Progress from './Progress.svelte'
+	import Notification from './Notification.svelte'
+import Progress from './Progress.svelte'
 
 	const defaultZombieSpawnDuration = 500
 	let spawningZombie = false
-	let zombies = 0
+	let zombies = parseInt(localStorage.getItem('zombies'), 10) ?? 0
 	let currentSpawn = null
+	let autoZombies = false
+	let showSaved = false
 
 	$: currentZombieSpawnDuration = autoZombies ? 2 * defaultZombieSpawnDuration : defaultZombieSpawnDuration
 
-	let autoZombies = false
 
 	function createZombie () {
 		spawningZombie = true
@@ -23,23 +25,37 @@
 		clearTimeout(currentSpawn)
 	}
 
+	function saveGame () {
+		localStorage.setItem('zombies', zombies)
+		showSaved = true
+		setTimeout(() => {
+			showSaved = false
+		}, 2000)
+	}
+
 	setInterval(() => {
 		if (autoZombies && !spawningZombie) {
 			createZombie()
 		}
 	}, 50)
 
+	setInterval(() => {
+		saveGame()
+	}, 1000 * 60)
+
 </script>
 
 <main>
-	<h1>Zombies</h1>
+	<Notification show={showSaved} text="Saved" />
+	<h1>{zombies > 0 ? zombies : ''} {zombies === 1 ? 'Zombie' : 'Zombies'}</h1>
 
-	<button on:click={createZombie} disabled={spawningZombie}>
-		Spawn Zombie
-	</button>
-	<Progress duration={currentZombieSpawnDuration} run={spawningZombie}/>
-	{zombies} {zombies === 1 ? 'zombie' : 'zombies'}
-	<label><input type='checkbox' bind:checked={autoZombies} on:change={clearSpawn}/> Auto zombies</label>
+	<div class="row">
+		<button on:click={createZombie} disabled={spawningZombie}>
+			Construct Zombie
+		</button>
+		<Progress duration={currentZombieSpawnDuration} run={spawningZombie}/>
+		<label><input type="checkbox" bind:checked={autoZombies} on:change={clearSpawn}/> Auto zombies</label>
+	</div>
 </main>
 
 <style>
@@ -48,6 +64,13 @@
 		padding: 1em;
 		max-width: 240px;
 		margin: 0 auto;
+	}
+
+	.row {
+		display: grid;
+		grid-template-columns: 140px auto 140px;
+		column-gap: 20px;
+		align-items: center;
 	}
 
 	h1 {
