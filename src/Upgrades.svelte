@@ -11,7 +11,10 @@
     {#each Object.keys($upgrades.upgrades) as id}
       <button
         on:click={() => upgrades.getUpgrade(id)}
-        disabled={$upgrades.upgrades[id].purchased}
+        disabled={
+          $upgrades.upgrades[id].purchased
+          || $zombies[$upgrades.upgrades[id].cost.type] < $upgrades.upgrades[id].cost.number
+        }
       >
         {$upgrades.upgrades[id].name} ({$upgrades.upgrades[id].purchased
           ? 'Purchased'
