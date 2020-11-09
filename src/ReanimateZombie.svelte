@@ -1,16 +1,16 @@
 <script>
     import Progress from './Progress.svelte'
     import { currentPopulation, zombies, upgrades, defaultZombieSpawnDuration } from './store'
+    let spawningZombie = false
     let autoZombies
     let currentSpawn
 
-    let spawningZombie = false
     $: currentZombieSpawnDuration = autoZombies ? 2 * $defaultZombieSpawnDuration : $defaultZombieSpawnDuration
 
     function createZombie () {
       spawningZombie = true
       currentSpawn = setTimeout(() => {
-        zombies.update(oldZombies => oldZombies + 1)
+        zombies.update(oldZombies => ({ ...oldZombies, regular_zombie: oldZombies.regular_zombie + 1 }))
         currentPopulation.update(oldPopulation => oldPopulation - 1)
         spawningZombie = false
       }, currentZombieSpawnDuration)

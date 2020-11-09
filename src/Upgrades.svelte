@@ -1,7 +1,7 @@
 <script>
   import { zombies, upgrades } from './store'
 
-  $: if ($zombies >= 10 && !$upgrades.available) {
+  $: if ($zombies.regular_zombie >= 10 && !$upgrades.available) {
     upgrades.getUpgrade('SHOW_UPGRADES')
   }
 </script>
@@ -11,11 +11,11 @@
     {#each Object.keys($upgrades.upgrades) as id}
       <button
         on:click={() => upgrades.getUpgrade(id)}
-        disabled={$zombies < $upgrades.upgrades[id].cost || $upgrades.upgrades[id].purchased}
+        disabled={$upgrades.upgrades[id].purchased}
       >
         Get {$upgrades.upgrades[id].name} ({$upgrades.upgrades[id].purchased
           ? 'Purchased'
-          : `${$upgrades.upgrades[id].cost} Zombies`
+          : `${$upgrades.upgrades[id].cost.description}`
         })
       </button>
     {/each}
