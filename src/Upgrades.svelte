@@ -13,7 +13,7 @@
         on:click={() => upgrades.getUpgrade(id)}
         disabled={$upgrades.upgrades[id].purchased}
       >
-        Get {$upgrades.upgrades[id].name} ({$upgrades.upgrades[id].purchased
+        {$upgrades.upgrades[id].name} ({$upgrades.upgrades[id].purchased
           ? 'Purchased'
           : `${$upgrades.upgrades[id].cost.description}`
         })

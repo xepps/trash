@@ -1,11 +1,12 @@
 <script>
     import Progress from './Progress.svelte'
-    import { zombies, upgrades, defaultZombieSpawnDuration } from './store'
+    import { zombies, upgrades, zombieSpawnDuration } from './store'
     let autoZombies
     let currentSpawn
 
     let spawningZombie = false
-    $: currentZombieSpawnDuration = autoZombies ? 4 * $defaultZombieSpawnDuration : 2 * $defaultZombieSpawnDuration
+    $: currentZombieSpawnDuration = (autoZombies ? 4 * $zombieSpawnDuration : 2 * $zombieSpawnDuration)
+      * ($upgrades.upgrades['BETTER_TOOLS'].purchased ? 0.8 : 1)
 
     function createZombie () {
       spawningZombie = true
@@ -35,6 +36,6 @@
   Create Fast Zombie
 </button>
 <Progress duration={currentZombieSpawnDuration} run={spawningZombie}/>
-{#if $upgrades.upgrades.FAST_AUTO_ZOMBIES.purchased}
+{#if $upgrades.upgrades.AUTO_FAST_ZOMBIES.purchased}
   <label><input type="checkbox" bind:checked={autoZombies} on:change={clearSpawn}/> Auto fast zombies</label>
 {/if}

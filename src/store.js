@@ -1,7 +1,6 @@
 import { writable, readable } from 'svelte/store'
 
-export const defaultZombieSpawnDuration = readable(500)
-
+export const zombieSpawnDuration = readable(500)
 export const currentPopulation = writable(7824071572)
 export const zombies = writable({
   regular_zombie: 0,
@@ -23,8 +22,13 @@ function createUpgrades() {
         cost: { number: 50, type: 'regular_zombie', description: '50 Zombies' },
         purchased: false
       },
-      'FAST_AUTO_ZOMBIES': {
-        name: 'Better Zombie Helpers',
+      'AUTO_FAST_ZOMBIES': {
+        name: 'Equip Zombie Helpers',
+        cost: { number: 75, type: 'regular_zombie', description: '75 Zombies' },
+        purchased: false
+      },
+      'BETTER_TOOLS': {
+        name: 'Better Reanimation Tools',
         cost: { number: 40, type: 'fast_zombie', description: '40 Fast Zombies' },
         purchased: false
       },
@@ -64,7 +68,8 @@ function createUpgrades() {
           case 'SHOW_UPGRADES': return showUpgrades(oldUpgrades)
           case 'AUTO_ZOMBIES': return purchaseUpgrade(oldUpgrades, 'AUTO_ZOMBIES')
           case 'FAST_ZOMBIES': return purchaseUpgrade(oldUpgrades, 'FAST_ZOMBIES')
-          case 'FAST_AUTO_ZOMBIES': return purchaseUpgrade(oldUpgrades, 'FAST_AUTO_ZOMBIES')
+          case 'AUTO_FAST_ZOMBIES': return purchaseUpgrade(oldUpgrades, 'AUTO_FAST_ZOMBIES')
+          case 'BETTER_TOOLS': return purchaseUpgrade(oldUpgrades, 'BETTER_TOOLS')
           default: return oldUpgrades
         }
       })
