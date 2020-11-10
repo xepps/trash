@@ -1,12 +1,11 @@
 <script>
 	import { onMount } from 'svelte'
 	import Notification from './Notification.svelte'
-  import ReanimateZombie from './ReanimateZombie.svelte'
-  import UpgradeFastZombie from './UpgradeFastZombie.svelte'
+  import Spawn from './Spawn.svelte'
   import Upgrades from './Upgrades.svelte'
   import { formatNumber } from './utils'
 
-  import { currentPopulation, zombies, upgrades, fastZombies } from './store'
+  import { spawns, upgrades } from './store'
 
 	let showSaved = false
 
@@ -19,9 +18,8 @@
     const game = save ? JSON.parse(save) : {}
 
     if (Object.keys(game).length) {
-      currentPopulation.update(() => game.currentPopulation)
-      zombies.update(() => game.zombies)
       upgrades.load(game.upgrades)
+      spawns.load(game.spawns)
     }
   }
 
@@ -32,8 +30,7 @@
     })
 
 		localStorage.setItem('save', JSON.stringify({
-			currentPopulation: $currentPopulation,
-      zombies: $zombies,
+			spawns: $spawns,
       upgrades: { available: $upgrades.available, upgrades: parsedUpgrades }
 		}))
 		showSaved = true
@@ -44,35 +41,55 @@
 
 	setInterval(() => {
     if (Math.random() < 0.15) {
-      currentPopulation.update(oldPopulation => oldPopulation + 1)
+      spawns.spawnHuman()
     }
 	}, 50)
 
 	setInterval(() => {
 		saveGame()
-	}, 1000 * 60)
+	}, 1000 * 20)
 
 </script>
 
 <main>
-	<Notification show={showSaved} text="Saved" />
-  <h1>
-    {#if $zombies.regular_zombie}
-      <span>{formatNumber($zombies.regular_zombie)} {$zombies.regular_zombie === 1 ? 'Zombie' : 'Zombies'} and </span>
-    {/if}
-    {#if $zombies.fast_zombie}
-      <span>{formatNumber($zombies.fast_zombie)} {$zombies.fast_zombie === 1 ? 'Fast Zombie' : 'Fast Zombies'} and </span>
-    {/if}
-    <span class='black'>{formatNumber($currentPopulation)} humans</span>
-  </h1>
+  <Notification show={showSaved} text="Saved" />
+  <h1>{formatNumber($spawns.free_humans)} humans alive</h1>
 
-	<div class="row">
-    <ReanimateZombie />
-	</div>
-  {#if $upgrades.upgrades.FAST_ZOMBIES.purchased}
-    <div class="row">
-      <UpgradeFastZombie />
-    </div>
+  <Spawn
+    actionName="Capture Test Subject"
+    amount={$spawns.test_subjects}
+    spawnFunction={spawns.captureTestSubject}
+    spawnDuration={1000}
+    enableAutoRun={$upgrades.upgrades['AUTO_CAPTURE'].purchased}
+    autoMultiplier={2}
+  />
+
+  <Spawn
+    actionName="Perform Research"
+    amount={$spawns.research}
+    available={$spawns.test_subjects > 0}
+    spawnFunction={() => {
+      spawns.performResearch()
+      if (Math.random() > 0.8) spawns.killTestSubject(1)
+    }}
+    spawnDuration={500}
+    enableAutoRun={$upgrades.upgrades['AUTO_RESEARCH'].purchased}
+    autoMultiplier={2}
+  />
+
+  {#if $upgrades.upgrades['ZOMBIES'].purchased}
+    <Spawn
+      actionName="Create Zombie"
+      amount={$spawns.regular_zombie}
+      available={$spawns.test_subjects > 0}
+      spawnFunction={() => {
+        if (Math.random() > 0.5) spawns.createZombie()
+        else spawns.killTestSubject(1)
+      }}
+      spawnDuration={1500}
+      enableAutoRun={$upgrades.upgrades['AUTO_ZOMBIE'].purchased}
+      autoMultiplier={2}
+    />
   {/if}
 
   <hr />
@@ -86,17 +103,6 @@
 		padding: 1em;
 		max-width: 240px;
 		margin: 0 auto;
-  }
-
-  .black {
-    color: black;
-  }
-
-	.row {
-		display: grid;
-		grid-template-columns: 140px auto 140px;
-		column-gap: 20px;
-		align-items: center;
   }
 
 	h1 {
