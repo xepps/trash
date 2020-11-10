@@ -5,13 +5,20 @@
   import Upgrades from './Upgrades.svelte'
   import { formatNumber } from './utils'
 
-  import { spawns, upgrades } from './store'
+  import spawns from './store/spawns'
+  import upgrades, { ZOMBIES, AUTO_CAPTURE, AUTO_RESEARCH, AUTO_ZOMBIE } from './store/upgrades'
 
 	let showSaved = false
 
 	onMount(() => {
 		loadGame()
   })
+
+  function resetGame () {
+    localStorage.setItem('save', '{}')
+    upgrades.reset()
+    spawns.reset()
+  }
 
   function loadGame () {
     const save = localStorage.getItem('save')
@@ -60,7 +67,7 @@
     amount={$spawns.test_subjects}
     spawnFunction={spawns.captureTestSubject}
     spawnDuration={1000}
-    enableAutoRun={$upgrades.upgrades['AUTO_CAPTURE'].purchased}
+    enableAutoRun={$upgrades.upgrades[AUTO_CAPTURE].purchased}
     autoMultiplier={2}
   />
 
@@ -73,11 +80,11 @@
       if (Math.random() > 0.8) spawns.killTestSubject(1)
     }}
     spawnDuration={500}
-    enableAutoRun={$upgrades.upgrades['AUTO_RESEARCH'].purchased}
+    enableAutoRun={$upgrades.upgrades[AUTO_RESEARCH].purchased}
     autoMultiplier={2}
   />
 
-  {#if $upgrades.upgrades['ZOMBIES'].purchased}
+  {#if $upgrades.upgrades[ZOMBIES].purchased}
     <Spawn
       actionName="Create Zombie"
       amount={$spawns.regular_zombie}
@@ -87,7 +94,7 @@
         else spawns.killTestSubject(1)
       }}
       spawnDuration={1500}
-      enableAutoRun={$upgrades.upgrades['AUTO_ZOMBIE'].purchased}
+      enableAutoRun={$upgrades.upgrades[AUTO_ZOMBIE].purchased}
       autoMultiplier={2}
     />
   {/if}
@@ -95,6 +102,10 @@
   <hr />
 
   <Upgrades />
+  <div class="controls">
+    <button on:click={saveGame}>Save</button>
+    <button on:click={resetGame}>Reset</button>
+  </div>
 </main>
 
 <style>
@@ -103,6 +114,12 @@
 		padding: 1em;
 		max-width: 240px;
 		margin: 0 auto;
+  }
+
+  .controls {
+    position: absolute;
+    top: 10px;
+    left: 10px;
   }
 
 	h1 {

@@ -1,10 +1,12 @@
 <script>
-  import { spawns, upgrades } from './store'
+  import spawns from './store/spawns'
+  import upgrades, { SHOW_UPGRADES } from './store/upgrades'
+
   let newUpgrades
   let purchasedUpgrades
 
   $: if ($spawns.research >= 10 && !$upgrades.available) {
-    upgrades.getUpgrade('SHOW_UPGRADES')
+    upgrades.getUpgrade(SHOW_UPGRADES)
   }
 
   $: newUpgrades = Object.keys($upgrades.upgrades).filter(id => !$upgrades.upgrades[id].purchased)
